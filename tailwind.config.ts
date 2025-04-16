@@ -32,6 +32,24 @@ export default {
 					DEFAULT: 'hsl(var(--secondary))',
 					foreground: 'hsl(var(--secondary-foreground))'
 				},
+                rentmate: {
+                    50: '#e6f7f7',
+                    100: '#ccefef',
+                    200: '#99dfdf',
+                    300: '#66cfcf',
+                    400: '#33bfbf',
+                    500: '#00afaf',
+                    600: '#008c8c',
+                    700: '#006969',
+                    800: '#004646',
+                    900: '#002323',
+                },
+                accent: {
+                    DEFAULT: '#ff7e33',
+                    light: '#ff9b5c',
+                    dark: '#e65c0e',
+                    foreground: 'hsl(var(--accent-foreground))'
+                },
 				destructive: {
 					DEFAULT: 'hsl(var(--destructive))',
 					foreground: 'hsl(var(--destructive-foreground))'

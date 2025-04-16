@@ -1,4 +1,3 @@
-
 export type UserRole = 'seeker' | 'provider' | 'admin';
 
 export interface User {
@@ -9,6 +8,7 @@ export interface User {
   isVerified: boolean;
   profileImage?: string;
   createdAt: Date;
+  lastLogin?: Date;
 }
 
 export interface ListingImage {
@@ -60,3 +60,5 @@ export interface SearchFilters {
   furnishingStatus?: FurnishingStatus;
   genderPreference?: string;
 }
+
+export type AuthProvider = 'email' | 'google' | 'linkedin';

@@ -14,10 +14,14 @@ if (!supabaseUrl || !supabaseAnonKey) {
   console.error('Missing Supabase environment variables. Make sure VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are set.');
 }
 
+// Set default URLs to prevent runtime errors
+const fallbackUrl = 'https://placeholder-project.supabase.co';
+const fallbackKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.placeholder';
+
 // Initialize Supabase client
 const supabase = createClient(
-  supabaseUrl || '', 
-  supabaseAnonKey || ''
+  supabaseUrl || fallbackUrl, 
+  supabaseAnonKey || fallbackKey
 );
 
 export const useAuth = () => {
@@ -31,6 +35,11 @@ export const useAuth = () => {
     password: string, 
     userRole: 'seeker' | 'provider'
   }) => {
+    if (!supabaseUrl || !supabaseAnonKey) {
+      toast.error('Supabase environment variables are not set. Authentication is unavailable.');
+      return;
+    }
+    
     setIsLoading(true);
     
     try {
@@ -72,6 +81,11 @@ export const useAuth = () => {
   };
 
   const signIn = async (email: string, password: string) => {
+    if (!supabaseUrl || !supabaseAnonKey) {
+      toast.error('Supabase environment variables are not set. Authentication is unavailable.');
+      return;
+    }
+    
     setIsLoading(true);
     
     try {

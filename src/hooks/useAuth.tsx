@@ -5,10 +5,19 @@ import { useNavigate } from 'react-router-dom';
 import { User } from '@/types';
 import { toast } from 'sonner';
 
+// Initialize Supabase client with explicit error handling
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+// Check if required environment variables are defined
+if (!supabaseUrl || !supabaseAnonKey) {
+  console.error('Missing Supabase environment variables. Make sure VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are set.');
+}
+
 // Initialize Supabase client
 const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL!, 
-  import.meta.env.VITE_SUPABASE_ANON_KEY!
+  supabaseUrl || '', 
+  supabaseAnonKey || ''
 );
 
 export const useAuth = () => {
@@ -98,4 +107,3 @@ export const useSession = () => {
 };
 
 export { supabase };
-

@@ -110,22 +110,12 @@ export const SearchFilters = ({ onSearch, initialFilters = {} }: SearchFiltersPr
     setIsAdvancedOpen(false);
   };
 
-  // Revised demo text function
   const getDemoText = (type: string) => {
-    if (isSupabaseConnected) return null;
-    
-    const demoTexts: Record<string, string> = {
-      location: "Try 'Berlin' or 'Munich'",
-      roomType: "Select room type",
-      availableFrom: "Choose move-in date",
-      price: "€0 - €2000",
-      furnishing: "Furnishing status",
-      gender: "Accommodation preference"
-    };
+    if (isSupabaseConnected || type !== "location") return null;
 
     return (
       <div className="absolute inset-0 flex items-center pointer-events-none text-gray-600 text-sm pl-3 opacity-70">
-        {demoTexts[type]}
+        Try "Berlin" or "Munich"
       </div>
     );
   };
@@ -147,7 +137,7 @@ export const SearchFilters = ({ onSearch, initialFilters = {} }: SearchFiltersPr
               value={filters.location || ""} 
               onChange={handleCityChange} 
             />
-            {getDemoText('')}
+            {getDemoText("location")}
           </div>
 
           {/* Room Type */}
@@ -161,7 +151,7 @@ export const SearchFilters = ({ onSearch, initialFilters = {} }: SearchFiltersPr
                   >
                     <SelectTrigger className="w-full">
                       <Home className="h-4 w-4 opacity-50 mr-2" />
-                      <SelectValue placeholder="" />
+                      <SelectValue placeholder="Room Type" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectGroup>
@@ -171,7 +161,6 @@ export const SearchFilters = ({ onSearch, initialFilters = {} }: SearchFiltersPr
                       </SelectGroup>
                     </SelectContent>
                   </Select>
-                  {getDemoText('roomType')}
                 </div>
               </HoverCardTrigger>
               <HoverCardContent className="w-80 p-4">
@@ -232,7 +221,6 @@ export const SearchFilters = ({ onSearch, initialFilters = {} }: SearchFiltersPr
                 />
               </PopoverContent>
             </Popover>
-            {getDemoText('availableFrom')}
           </div>
         </div>
 
@@ -278,7 +266,6 @@ export const SearchFilters = ({ onSearch, initialFilters = {} }: SearchFiltersPr
                 onValueChange={handlePriceChange}
                 className="mt-2"
               />
-              {getDemoText('price')}
             </div>
 
             {/* Furnishing Status */}
@@ -302,7 +289,6 @@ export const SearchFilters = ({ onSearch, initialFilters = {} }: SearchFiltersPr
                           </SelectGroup>
                         </SelectContent>
                       </Select>
-                      {getDemoText('furnishing')}
                     </div>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -337,7 +323,6 @@ export const SearchFilters = ({ onSearch, initialFilters = {} }: SearchFiltersPr
                           </SelectGroup>
                         </SelectContent>
                       </Select>
-                      {getDemoText('gender')}
                     </div>
                   </TooltipTrigger>
                   <TooltipContent>

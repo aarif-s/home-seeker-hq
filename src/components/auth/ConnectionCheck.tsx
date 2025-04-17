@@ -1,15 +1,17 @@
 
 import { useEffect, useState } from 'react';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Alert,
   AlertDescription,
   AlertTitle,
 } from "@/components/ui/alert";
+import { Link } from 'react-router-dom';
 
 const ConnectionCheck = () => {
   const [isSupabaseConnected, setIsSupabaseConnected] = useState(true);
+  const [isDismissed, setIsDismissed] = useState(false);
   
   useEffect(() => {
     // Check if Supabase environment variables are set
@@ -19,27 +21,47 @@ const ConnectionCheck = () => {
     if (!supabaseUrl || !supabaseAnonKey) {
       setIsSupabaseConnected(false);
     }
+    
+    // Check if the user has dismissed the alert before
+    const dismissedStatus = localStorage.getItem('connection-alert-dismissed');
+    if (dismissedStatus === 'true') {
+      setIsDismissed(true);
+    }
   }, []);
   
-  if (isSupabaseConnected) return null;
+  const handleDismiss = () => {
+    localStorage.setItem('connection-alert-dismissed', 'true');
+    setIsDismissed(true);
+  };
+  
+  if (isSupabaseConnected || isDismissed) return null;
   
   return (
-    <Alert variant="destructive" className="mb-6">
-      <AlertTriangle className="h-4 w-4" />
-      <AlertTitle>Connection Issue</AlertTitle>
-      <AlertDescription className="space-y-4">
+    <Alert variant="default" className="mb-6 border-rentmate-200 bg-rentmate-50">
+      <Info className="h-4 w-4 text-rentmate-600" />
+      <AlertTitle className="text-rentmate-700">Demo Mode Active</AlertTitle>
+      <AlertDescription className="text-rentmate-600/90 space-y-2">
         <p>
-          This application requires connection to Supabase for authentication and data storage.
-          Currently, the Supabase environment variables are not set.
+          RentMate is running in demo mode with sample data. For full functionality including real-time listings and authentication, connect to Supabase.
         </p>
-        <div className="space-x-2">
+        <div className="flex flex-wrap gap-2 pt-2">
           <Button 
             variant="outline" 
             size="sm"
-            className="bg-white"
-            onClick={() => window.open('https://docs.lovable.dev/integrations/supabase/', '_blank')}
+            className="border-rentmate-200 bg-white text-rentmate-700 hover:bg-rentmate-100"
+            onClick={handleDismiss}
           >
-            View Documentation
+            Continue in Demo Mode
+          </Button>
+          <Button 
+            variant="default" 
+            size="sm"
+            className="bg-rentmate-600 hover:bg-rentmate-700 text-white"
+            asChild
+          >
+            <Link to="https://docs.lovable.dev/integrations/supabase/">
+              Learn About Supabase
+            </Link>
           </Button>
         </div>
       </AlertDescription>

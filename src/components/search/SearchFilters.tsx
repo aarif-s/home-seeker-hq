@@ -18,6 +18,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import CitySearch from "./CitySearch";
 import { SearchFilters as SearchFiltersType, RoomType, FurnishingStatus } from "@/types";
 import { 
@@ -35,6 +41,18 @@ const roomTypeDescriptions = {
   private: "A private room with your own personal space, often in a shared apartment or house with common areas like kitchen and bathroom shared with others.",
   shared: "A room shared with one or more people. Lower cost but reduced privacy, ideal for short-term stays or budget-conscious renters.",
   apartment: "An entire apartment or studio for yourself, offering complete privacy and independence. May include kitchen, bathroom, living area and one or more bedrooms."
+};
+
+const roomTypeSuitability = {
+  private: "Students, young professionals, long-term stays",
+  shared: "Students on a budget, short-term stays, social living",
+  apartment: "Couples, small families, remote workers, longer-term stays"
+};
+
+const roomTypeAmenities = {
+  private: "Personal bedroom, shared common areas, possibly shared bathroom",
+  shared: "Bunk beds or shared room space, communal facilities",
+  apartment: "Complete kitchen, private bathroom, living area, possible balcony"
 };
 
 export const SearchFilters = ({ onSearch, initialFilters = {} }: SearchFiltersProps) => {
@@ -99,7 +117,7 @@ export const SearchFilters = ({ onSearch, initialFilters = {} }: SearchFiltersPr
 
           {/* Room Type */}
           <div>
-            <HoverCard>
+            <HoverCard openDelay={300} closeDelay={200}>
               <HoverCardTrigger asChild>
                 <div>
                   <Select
@@ -120,21 +138,34 @@ export const SearchFilters = ({ onSearch, initialFilters = {} }: SearchFiltersPr
                   </Select>
                 </div>
               </HoverCardTrigger>
-              <HoverCardContent className="w-80 p-4 text-sm">
+              <HoverCardContent className="w-80 p-4">
                 {filters.roomType ? (
                   <div>
-                    <h4 className="font-medium mb-1">
+                    <h4 className="font-medium mb-2">
                       {filters.roomType === 'private' ? 'Private Room' : 
                         filters.roomType === 'shared' ? 'Shared Room' : 'Apartment'}
                     </h4>
-                    <p className="text-muted-foreground">
-                      {roomTypeDescriptions[filters.roomType]}
-                    </p>
+                    <div className="space-y-3 text-sm">
+                      <p className="text-gray-700">
+                        {roomTypeDescriptions[filters.roomType]}
+                      </p>
+                      <div className="pt-2 border-t">
+                        <span className="font-medium text-xs text-gray-500">SUITABLE FOR:</span>
+                        <p className="text-gray-700 mt-1">{roomTypeSuitability[filters.roomType]}</p>
+                      </div>
+                      <div className="pt-2 border-t">
+                        <span className="font-medium text-xs text-gray-500">TYPICALLY INCLUDES:</span>
+                        <p className="text-gray-700 mt-1">{roomTypeAmenities[filters.roomType]}</p>
+                      </div>
+                    </div>
                   </div>
                 ) : (
-                  <p className="text-muted-foreground">
-                    Select a room type to see more details about the accommodation type.
-                  </p>
+                  <div className="text-center py-4">
+                    <Home className="h-8 w-8 mx-auto text-gray-400 mb-2" />
+                    <p className="text-gray-600 text-sm">
+                      Select a room type to see more details about the accommodation type
+                    </p>
+                  </div>
                 )}
               </HoverCardContent>
             </HoverCard>
@@ -211,42 +242,67 @@ export const SearchFilters = ({ onSearch, initialFilters = {} }: SearchFiltersPr
             </div>
 
             {/* Furnishing Status */}
-            <div>
-              <Select
-                value={filters.furnishingStatus}
-                onValueChange={(value) => handleSelectChange("furnishingStatus", value as FurnishingStatus)}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Furnishing" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectItem value="furnished">Furnished</SelectItem>
-                    <SelectItem value="semi-furnished">Semi-furnished</SelectItem>
-                    <SelectItem value="unfurnished">Unfurnished</SelectItem>
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            </div>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div>
+                    <Select
+                      value={filters.furnishingStatus}
+                      onValueChange={(value) => handleSelectChange("furnishingStatus", value as FurnishingStatus)}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Furnishing" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectItem value="furnished">Furnished</SelectItem>
+                          <SelectItem value="semi-furnished">Semi-furnished</SelectItem>
+                          <SelectItem value="unfurnished">Unfurnished</SelectItem>
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="text-sm">
+                    <strong>Furnished:</strong> Includes all furniture and appliances<br />
+                    <strong>Semi-furnished:</strong> Basic furniture only<br />
+                    <strong>Unfurnished:</strong> No furniture provided
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
 
             {/* Gender Preference */}
-            <div>
-              <Select
-                value={filters.genderPreference}
-                onValueChange={(value) => handleSelectChange("genderPreference", value)}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Gender preference" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectItem value="male">Male only</SelectItem>
-                    <SelectItem value="female">Female only</SelectItem>
-                    <SelectItem value="any">Any gender</SelectItem>
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            </div>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div>
+                    <Select
+                      value={filters.genderPreference}
+                      onValueChange={(value) => handleSelectChange("genderPreference", value)}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Gender preference" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectItem value="male">Male only</SelectItem>
+                          <SelectItem value="female">Female only</SelectItem>
+                          <SelectItem value="any">Any gender</SelectItem>
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="text-sm">
+                    Some accommodations may be available to specific genders only,<br />
+                    especially in shared living situations.
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         )}
       </div>

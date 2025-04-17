@@ -10,8 +10,8 @@ interface DemoModeAlertProps {
 }
 
 const DemoModeAlert = ({
-  title = "Demo Mode",
-  description = "This application is running in demo mode. Some features may be limited without a Supabase connection.",
+  title = "Demo Mode Active",
+  description = "RentMate is currently running in demo mode with sample data. Connect to Supabase for full functionality including authentication and real-time listings.",
   className,
 }: DemoModeAlertProps) => {
   const [dismissed, setDismissed] = useState(false);
@@ -19,16 +19,16 @@ const DemoModeAlert = ({
   if (dismissed) return null;
 
   return (
-    <Alert className={`relative ${className}`}>
-      <Info className="h-4 w-4" />
-      <AlertTitle>{title}</AlertTitle>
-      <AlertDescription>{description}</AlertDescription>
+    <Alert className={`relative border-rentmate-600/20 bg-rentmate-50 ${className}`}>
+      <Info className="h-4 w-4 text-rentmate-600" />
+      <AlertTitle className="text-rentmate-700">{title}</AlertTitle>
+      <AlertDescription className="text-rentmate-600/80">{description}</AlertDescription>
       <button
         onClick={() => setDismissed(true)}
-        className="absolute top-2 right-2 p-1 rounded-full hover:bg-gray-200 transition-colors"
+        className="absolute top-2 right-2 p-1 rounded-full hover:bg-rentmate-100 transition-colors"
         aria-label="Dismiss"
       >
-        <X className="h-4 w-4" />
+        <X className="h-4 w-4 text-rentmate-600" />
       </button>
     </Alert>
   );

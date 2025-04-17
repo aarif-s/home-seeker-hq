@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 import { MapPin } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -16,8 +15,12 @@ const CitySearch = ({ value, onChange }: CitySearchProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
+  // 🔁 Sync query when value changes from parent
   useEffect(() => {
-    // Update suggestions when query changes
+    setQuery(value);
+  }, [value]);
+
+  useEffect(() => {
     if (query.length > 1) {
       setSuggestions(filterCities(query));
       setIsOpen(true);
@@ -28,7 +31,6 @@ const CitySearch = ({ value, onChange }: CitySearchProps) => {
   }, [query]);
 
   useEffect(() => {
-    // Function to close suggestions when clicking outside
     const handleClickOutside = (event: MouseEvent) => {
       if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
         setIsOpen(false);
@@ -42,12 +44,13 @@ const CitySearch = ({ value, onChange }: CitySearchProps) => {
   }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setQuery(e.target.value);
+    const inputValue = e.target.value;
+    setQuery(inputValue);
+    onChange(inputValue); // Sync with parent as you type
   };
 
   const handleSelectCity = (city: City) => {
-    setQuery(city.name);
-    onChange(city.name);
+    onChange(city.name); // Parent state updates value, which syncs query via useEffect
     setIsOpen(false);
   };
 

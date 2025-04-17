@@ -110,7 +110,7 @@ export const SearchFilters = ({ onSearch, initialFilters = {} }: SearchFiltersPr
     setIsAdvancedOpen(false);
   };
 
-  // Demo mode text for each input
+  // Revised demo text function
   const getDemoText = (type: string) => {
     if (isSupabaseConnected) return null;
     
@@ -124,7 +124,7 @@ export const SearchFilters = ({ onSearch, initialFilters = {} }: SearchFiltersPr
     };
 
     return (
-      <div className="absolute inset-0 flex items-center pointer-events-none text-gray-400 text-sm pl-3 opacity-50">
+      <div className="absolute inset-0 flex items-center pointer-events-none text-gray-600 text-sm pl-3 opacity-70">
         {demoTexts[type]}
       </div>
     );

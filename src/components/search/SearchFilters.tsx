@@ -147,7 +147,7 @@ export const SearchFilters = ({ onSearch, initialFilters = {} }: SearchFiltersPr
               value={filters.location || ""} 
               onChange={handleCityChange} 
             />
-            {getDemoText('location')}
+            {getDemoText('')}
           </div>
 
           {/* Room Type */}
@@ -161,7 +161,7 @@ export const SearchFilters = ({ onSearch, initialFilters = {} }: SearchFiltersPr
                   >
                     <SelectTrigger className="w-full">
                       <Home className="h-4 w-4 opacity-50 mr-2" />
-                      <SelectValue placeholder="Room type" />
+                      <SelectValue placeholder="" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectGroup>

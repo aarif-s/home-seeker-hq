@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, MapPin, Stamp, Shield } from 'lucide-react';
+import { ArrowRight, MapPin, Stamp, Shield, UserSearch, Home, Building, Users, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
@@ -89,8 +89,85 @@ const Index = () => {
         </div>
       </section>
       
+      {/* I am looking for / I want to list section */}
+      <section className="py-12 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <h2 className="text-2xl md:text-3xl font-bold text-center mb-10">What are you looking for?</h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* I'm looking for accommodation */}
+            <div className="bg-white rounded-lg shadow-md overflow-hidden transition-transform hover:scale-105">
+              <div className="p-8">
+                <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <UserSearch className="h-8 w-8" />
+                </div>
+                <h3 className="text-xl font-semibold text-center mb-4">I'm looking for accommodation</h3>
+                <p className="text-gray-600 text-center mb-6">
+                  Find the perfect room, apartment, or shared space for your needs with our advanced search features.
+                </p>
+                <div className="space-y-3">
+                  <div className="flex items-center p-3 bg-gray-50 rounded-md">
+                    <Home className="h-5 w-5 text-gray-500 mr-3" />
+                    <span>Browse verified listings from trusted providers</span>
+                  </div>
+                  <div className="flex items-center p-3 bg-gray-50 rounded-md">
+                    <MapPin className="h-5 w-5 text-gray-500 mr-3" />
+                    <span>Filter by location, price, and amenities</span>
+                  </div>
+                  <div className="flex items-center p-3 bg-gray-50 rounded-md">
+                    <Users className="h-5 w-5 text-gray-500 mr-3" />
+                    <span>Connect directly with potential roommates</span>
+                  </div>
+                </div>
+                <div className="mt-8 text-center">
+                  <Button asChild className="bg-rentmate-600 hover:bg-rentmate-700" size="lg">
+                    <Link to="/listings">
+                      Browse Listings <ChevronRight className="ml-2 h-4 w-4" />
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+            </div>
+            
+            {/* I want to list accommodation */}
+            <div className="bg-white rounded-lg shadow-md overflow-hidden transition-transform hover:scale-105">
+              <div className="p-8">
+                <div className="w-16 h-16 bg-teal-100 text-teal-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Building className="h-8 w-8" />
+                </div>
+                <h3 className="text-xl font-semibold text-center mb-4">I want to list accommodation</h3>
+                <p className="text-gray-600 text-center mb-6">
+                  List your available room, apartment, or shared space to connect with potential tenants or roommates.
+                </p>
+                <div className="space-y-3">
+                  <div className="flex items-center p-3 bg-gray-50 rounded-md">
+                    <Shield className="h-5 w-5 text-gray-500 mr-3" />
+                    <span>Verification process to ensure trust and safety</span>
+                  </div>
+                  <div className="flex items-center p-3 bg-gray-50 rounded-md">
+                    <Stamp className="h-5 w-5 text-gray-500 mr-3" />
+                    <span>Simple listing process with detailed options</span>
+                  </div>
+                  <div className="flex items-center p-3 bg-gray-50 rounded-md">
+                    <Users className="h-5 w-5 text-gray-500 mr-3" />
+                    <span>Reach thousands of potential tenants</span>
+                  </div>
+                </div>
+                <div className="mt-8 text-center">
+                  <Button asChild className="bg-teal-600 hover:bg-teal-700" size="lg">
+                    <Link to="/create-listing">
+                      Create Listing <ChevronRight className="ml-2 h-4 w-4" />
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      
       {/* Featured Listings Section */}
-      <section className="py-12 md:py-16 bg-gray-50">
+      <section className="py-12 md:py-16 bg-white">
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center mb-8">
             <h2 className="text-2xl md:text-3xl font-bold">Featured Listings</h2>
@@ -127,7 +204,7 @@ const Index = () => {
       </section>
       
       {/* How It Works Section */}
-      <section className="py-12 md:py-16 bg-white">
+      <section className="py-12 md:py-16 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-4">How RentMate Works</h2>
@@ -138,7 +215,7 @@ const Index = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Step 1 */}
-            <div className="bg-gray-50 rounded-lg p-6 text-center">
+            <div className="bg-white rounded-lg p-6 text-center shadow-sm">
               <div className="w-16 h-16 bg-rentmate-100 text-rentmate-600 rounded-full flex items-center justify-center mx-auto mb-4">
                 <MapPin className="h-8 w-8" />
               </div>
@@ -149,7 +226,7 @@ const Index = () => {
             </div>
             
             {/* Step 2 */}
-            <div className="bg-gray-50 rounded-lg p-6 text-center">
+            <div className="bg-white rounded-lg p-6 text-center shadow-sm">
               <div className="w-16 h-16 bg-rentmate-100 text-rentmate-600 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Stamp className="h-8 w-8" />
               </div>
@@ -160,7 +237,7 @@ const Index = () => {
             </div>
             
             {/* Step 3 */}
-            <div className="bg-gray-50 rounded-lg p-6 text-center">
+            <div className="bg-white rounded-lg p-6 text-center shadow-sm">
               <div className="w-16 h-16 bg-rentmate-100 text-rentmate-600 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Shield className="h-8 w-8" />
               </div>
@@ -185,7 +262,7 @@ const Index = () => {
             </div>
             <div>
               <Button className="bg-accent hover:bg-accent-dark text-white w-full md:w-auto" size="lg" asChild>
-                <Link to="/list-property">Become a Provider</Link>
+                <Link to="/create-listing">Become a Provider</Link>
               </Button>
             </div>
           </div>

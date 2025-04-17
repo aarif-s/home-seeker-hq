@@ -1,3 +1,4 @@
+
 export type UserRole = 'seeker' | 'provider' | 'admin';
 
 export interface User {
@@ -62,3 +63,28 @@ export interface SearchFilters {
 }
 
 export type AuthProvider = 'email' | 'google' | 'linkedin';
+
+export interface City {
+  id: string;
+  name: string;
+  country: string;
+}
+
+export interface CreateListingFormData {
+  title: string;
+  description: string;
+  price: number;
+  address: string;
+  city: string;
+  zipCode: string;
+  country: string;
+  roomType: RoomType;
+  furnishingStatus: FurnishingStatus;
+  availableFrom: Date;
+  availableUntil?: Date;
+  size: number;
+  amenities: string[];
+  rules?: string[];
+  genderPreference?: 'male' | 'female' | 'any';
+  images: File[];
+}

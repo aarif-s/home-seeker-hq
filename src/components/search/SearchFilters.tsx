@@ -1,11 +1,10 @@
 
 import { useState } from "react";
-import { Search, MapPin, CalendarIcon, Home, Filter } from "lucide-react";
+import { Search, CalendarIcon, Home, Filter } from "lucide-react";
 import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { Input } from "@/components/ui/input";
 import {
   Popover,
   PopoverContent,
@@ -19,12 +18,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import CitySearch from "./CitySearch";
 import { SearchFilters as SearchFiltersType, RoomType, FurnishingStatus } from "@/types";
+import { 
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger 
+} from "@/components/ui/hover-card";
 
 interface SearchFiltersProps {
   onSearch: (filters: SearchFiltersType) => void;
   initialFilters?: SearchFiltersType;
 }
+
+const roomTypeDescriptions = {
+  private: "A private room with your own personal space, often in a shared apartment or house with common areas like kitchen and bathroom shared with others.",
+  shared: "A room shared with one or more people. Lower cost but reduced privacy, ideal for short-term stays or budget-conscious renters.",
+  apartment: "An entire apartment or studio for yourself, offering complete privacy and independence. May include kitchen, bathroom, living area and one or more bedrooms."
+};
 
 export const SearchFilters = ({ onSearch, initialFilters = {} }: SearchFiltersProps) => {
   const [filters, setFilters] = useState<SearchFiltersType>({
@@ -39,11 +50,8 @@ export const SearchFilters = ({ onSearch, initialFilters = {} }: SearchFiltersPr
 
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
 
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const { name, value } = e.target;
-    setFilters((prev) => ({ ...prev, [name]: value }));
+  const handleCityChange = (value: string) => {
+    setFilters((prev) => ({ ...prev, location: value }));
   };
 
   const handleSelectChange = (
@@ -87,38 +95,49 @@ export const SearchFilters = ({ onSearch, initialFilters = {} }: SearchFiltersPr
         {/* Basic Search Row */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Location Search */}
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <MapPin className="h-5 w-5 text-gray-400" />
-            </div>
-            <Input
-              type="text"
-              name="location"
-              placeholder="City, neighborhood..."
-              className="pl-10"
-              value={filters.location}
-              onChange={handleInputChange}
-            />
-          </div>
+          <CitySearch value={filters.location || ""} onChange={handleCityChange} />
 
           {/* Room Type */}
           <div>
-            <Select
-              value={filters.roomType}
-              onValueChange={(value) => handleSelectChange("roomType", value as RoomType)}
-            >
-              <SelectTrigger className="w-full">
-                <Home className="h-4 w-4 opacity-50 mr-2" />
-                <SelectValue placeholder="Room type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectItem value="private">Private Room</SelectItem>
-                  <SelectItem value="shared">Shared Room</SelectItem>
-                  <SelectItem value="apartment">Apartment</SelectItem>
-                </SelectGroup>
-              </SelectContent>
-            </Select>
+            <HoverCard>
+              <HoverCardTrigger asChild>
+                <div>
+                  <Select
+                    value={filters.roomType}
+                    onValueChange={(value) => handleSelectChange("roomType", value as RoomType)}
+                  >
+                    <SelectTrigger className="w-full">
+                      <Home className="h-4 w-4 opacity-50 mr-2" />
+                      <SelectValue placeholder="Room type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectItem value="private">Private Room</SelectItem>
+                        <SelectItem value="shared">Shared Room</SelectItem>
+                        <SelectItem value="apartment">Apartment</SelectItem>
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </HoverCardTrigger>
+              <HoverCardContent className="w-80 p-4 text-sm">
+                {filters.roomType ? (
+                  <div>
+                    <h4 className="font-medium mb-1">
+                      {filters.roomType === 'private' ? 'Private Room' : 
+                        filters.roomType === 'shared' ? 'Shared Room' : 'Apartment'}
+                    </h4>
+                    <p className="text-muted-foreground">
+                      {roomTypeDescriptions[filters.roomType]}
+                    </p>
+                  </div>
+                ) : (
+                  <p className="text-muted-foreground">
+                    Select a room type to see more details about the accommodation type.
+                  </p>
+                )}
+              </HoverCardContent>
+            </HoverCard>
           </div>
 
           {/* Available From */}

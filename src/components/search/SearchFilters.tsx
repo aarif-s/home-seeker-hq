@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Search, CalendarIcon, Home, Filter } from "lucide-react";
 import { format } from "date-fns";
@@ -31,11 +30,7 @@ import {
   HoverCardContent,
   HoverCardTrigger 
 } from "@/components/ui/hover-card";
-
-interface SearchFiltersProps {
-  onSearch: (filters: SearchFiltersType) => void;
-  initialFilters?: SearchFiltersType;
-}
+import { useSession } from "@/hooks/useAuth";
 
 const roomTypeDescriptions = {
   private: "A private room with your own personal space, often in a shared apartment or house with common areas like kitchen and bathroom shared with others.",
@@ -55,7 +50,15 @@ const roomTypeAmenities = {
   apartment: "Complete kitchen, private bathroom, living area, possible balcony"
 };
 
+interface SearchFiltersProps {
+  onSearch: (filters: SearchFiltersType) => void;
+  initialFilters?: SearchFiltersType;
+}
+
 export const SearchFilters = ({ onSearch, initialFilters = {} }: SearchFiltersProps) => {
+  const { user } = useSession();
+  const isSupabaseConnected = !!import.meta.env.VITE_SUPABASE_URL;
+
   const [filters, setFilters] = useState<SearchFiltersType>({
     location: initialFilters.location || "",
     roomType: initialFilters.roomType,
@@ -107,19 +110,51 @@ export const SearchFilters = ({ onSearch, initialFilters = {} }: SearchFiltersPr
     setIsAdvancedOpen(false);
   };
 
+  // Demo mode text for each input
+  const getDemoText = (type: string) => {
+    if (isSupabaseConnected) return null;
+    
+    const demoTexts: Record<string, string> = {
+      location: "Try 'Berlin' or 'Munich'",
+      roomType: "Select room type",
+      availableFrom: "Choose move-in date",
+      price: "€0 - €2000",
+      furnishing: "Furnishing status",
+      gender: "Accommodation preference"
+    };
+
+    return (
+      <div className="absolute inset-0 flex items-center pointer-events-none text-gray-400 text-sm pl-3 opacity-50">
+        {demoTexts[type]}
+      </div>
+    );
+  };
+
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+    <div className="bg-white rounded-lg shadow-md p-6 mb-8 relative">
+      {!isSupabaseConnected && (
+        <div className="absolute top-2 right-2 text-xs text-gray-500 bg-yellow-50 px-2 py-1 rounded">
+          Demo Mode
+        </div>
+      )}
+      
       <div className="space-y-4">
         {/* Basic Search Row */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 relative">
           {/* Location Search */}
-          <CitySearch value={filters.location || ""} onChange={handleCityChange} />
+          <div className="relative">
+            <CitySearch 
+              value={filters.location || ""} 
+              onChange={handleCityChange} 
+            />
+            {getDemoText('location')}
+          </div>
 
           {/* Room Type */}
-          <div>
+          <div className="relative">
             <HoverCard openDelay={300} closeDelay={200}>
               <HoverCardTrigger asChild>
-                <div>
+                <div className="relative">
                   <Select
                     value={filters.roomType}
                     onValueChange={(value) => handleSelectChange("roomType", value as RoomType)}
@@ -136,6 +171,7 @@ export const SearchFilters = ({ onSearch, initialFilters = {} }: SearchFiltersPr
                       </SelectGroup>
                     </SelectContent>
                   </Select>
+                  {getDemoText('roomType')}
                 </div>
               </HoverCardTrigger>
               <HoverCardContent className="w-80 p-4">
@@ -172,29 +208,32 @@ export const SearchFilters = ({ onSearch, initialFilters = {} }: SearchFiltersPr
           </div>
 
           {/* Available From */}
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                className="w-full justify-start text-left font-normal"
-              >
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                {filters.availableFrom ? (
-                  format(filters.availableFrom, "PPP")
-                ) : (
-                  <span>Available from</span>
-                )}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0">
-              <Calendar
-                mode="single"
-                selected={filters.availableFrom}
-                onSelect={handleDateChange}
-                initialFocus
-              />
-            </PopoverContent>
-          </Popover>
+          <div className="relative">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="w-full justify-start text-left font-normal relative"
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {filters.availableFrom ? (
+                    format(filters.availableFrom, "PPP")
+                  ) : (
+                    <span>Available from</span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0">
+                <Calendar
+                  mode="single"
+                  selected={filters.availableFrom}
+                  onSelect={handleDateChange}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+            {getDemoText('availableFrom')}
+          </div>
         </div>
 
         {/* Advanced Filters */}
@@ -225,7 +264,7 @@ export const SearchFilters = ({ onSearch, initialFilters = {} }: SearchFiltersPr
         {isAdvancedOpen && (
           <div className="pt-4 border-t mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Price Range */}
-            <div className="col-span-full md:col-span-1">
+            <div className="col-span-full md:col-span-1 relative">
               <div className="mb-2 flex justify-between">
                 <span className="text-sm font-medium">Price Range</span>
                 <span className="text-sm text-gray-500">
@@ -239,70 +278,77 @@ export const SearchFilters = ({ onSearch, initialFilters = {} }: SearchFiltersPr
                 onValueChange={handlePriceChange}
                 className="mt-2"
               />
+              {getDemoText('price')}
             </div>
 
             {/* Furnishing Status */}
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div>
-                    <Select
-                      value={filters.furnishingStatus}
-                      onValueChange={(value) => handleSelectChange("furnishingStatus", value as FurnishingStatus)}
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Furnishing" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          <SelectItem value="furnished">Furnished</SelectItem>
-                          <SelectItem value="semi-furnished">Semi-furnished</SelectItem>
-                          <SelectItem value="unfurnished">Unfurnished</SelectItem>
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p className="text-sm">
-                    <strong>Furnished:</strong> Includes all furniture and appliances<br />
-                    <strong>Semi-furnished:</strong> Basic furniture only<br />
-                    <strong>Unfurnished:</strong> No furniture provided
-                  </p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            <div className="relative">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div>
+                      <Select
+                        value={filters.furnishingStatus}
+                        onValueChange={(value) => handleSelectChange("furnishingStatus", value as FurnishingStatus)}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Furnishing" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectItem value="furnished">Furnished</SelectItem>
+                            <SelectItem value="semi-furnished">Semi-furnished</SelectItem>
+                            <SelectItem value="unfurnished">Unfurnished</SelectItem>
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                      {getDemoText('furnishing')}
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="text-sm">
+                      <strong>Furnished:</strong> Includes all furniture and appliances<br />
+                      <strong>Semi-furnished:</strong> Basic furniture only<br />
+                      <strong>Unfurnished:</strong> No furniture provided
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
 
             {/* Gender Preference */}
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div>
-                    <Select
-                      value={filters.genderPreference}
-                      onValueChange={(value) => handleSelectChange("genderPreference", value)}
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Gender preference" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          <SelectItem value="male">Male only</SelectItem>
-                          <SelectItem value="female">Female only</SelectItem>
-                          <SelectItem value="any">Any gender</SelectItem>
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p className="text-sm">
-                    Some accommodations may be available to specific genders only,<br />
-                    especially in shared living situations.
-                  </p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            <div className="relative">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div>
+                      <Select
+                        value={filters.genderPreference}
+                        onValueChange={(value) => handleSelectChange("genderPreference", value)}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Gender preference" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectItem value="male">Male only</SelectItem>
+                            <SelectItem value="female">Female only</SelectItem>
+                            <SelectItem value="any">Any gender</SelectItem>
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                      {getDemoText('gender')}
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="text-sm">
+                      Some accommodations may be available to specific genders only,<br />
+                      especially in shared living situations.
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
           </div>
         )}
       </div>

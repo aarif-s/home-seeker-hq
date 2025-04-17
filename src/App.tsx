@@ -18,6 +18,10 @@ import AdminLogin from "./pages/AdminLogin";
 import CreateListing from "./pages/CreateListing";
 import NotFound from "./pages/NotFound";
 
+// Auth
+import AuthGuard from "./components/auth/AuthGuard";
+import ConnectionCheck from "./components/auth/ConnectionCheck";
+
 const queryClient = new QueryClient();
 
 const App = () => {
@@ -44,16 +48,35 @@ const App = () => {
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <ConnectionCheck />
           <Routes>
+            {/* Public routes */}
             <Route path="/" element={<Index />} />
             <Route path="/listings" element={<ListingsPage />} />
             <Route path="/listings/:id" element={<ListingDetail />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
-            <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/login" element={<AdminLogin />} />
-            <Route path="/create-listing" element={<CreateListing />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            
+            {/* Protected routes */}
+            <Route 
+              path="/admin" 
+              element={
+                <AuthGuard requiredRole="admin" redirectTo="/admin/login">
+                  <AdminDashboard />
+                </AuthGuard>
+              } 
+            />
+            <Route 
+              path="/create-listing" 
+              element={
+                <AuthGuard requiredRole="provider" redirectTo="/login">
+                  <CreateListing />
+                </AuthGuard>
+              } 
+            />
+            
+            {/* Catch-all route */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

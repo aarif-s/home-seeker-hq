@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import { useNavigate } from 'react-router-dom';
 import { User } from '@/types';
@@ -27,6 +27,72 @@ const supabase = createClient(
 export const useAuth = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [authError, setAuthError] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Check for existing session on component mount
+    const checkSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      
+      if (data.session) {
+        // Get user profile data
+        const { data: userData } = await supabase
+          .from('users')
+          .select('*')
+          .eq('id', data.session.user.id)
+          .single();
+        
+        if (userData) {
+          setCurrentUser({
+            id: userData.id,
+            name: userData.name,
+            email: userData.email,
+            role: userData.role,
+            isVerified: userData.is_verified,
+            createdAt: new Date(userData.created_at),
+            lastLogin: userData.last_login ? new Date(userData.last_login) : undefined,
+            profileImage: userData.profile_image
+          });
+        }
+      }
+    };
+
+    checkSession();
+
+    // Set up auth state change listener
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (event === 'SIGNED_IN' && session) {
+          // Get user profile data
+          const { data: userData } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', session.user.id)
+            .single();
+          
+          if (userData) {
+            setCurrentUser({
+              id: userData.id,
+              name: userData.name,
+              email: userData.email,
+              role: userData.role,
+              isVerified: userData.is_verified,
+              createdAt: new Date(userData.created_at),
+              lastLogin: userData.last_login ? new Date(userData.last_login) : undefined,
+              profileImage: userData.profile_image
+            });
+          }
+        } else if (event === 'SIGNED_OUT') {
+          setCurrentUser(null);
+        }
+      }
+    );
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, []);
 
   const signUp = async (userData: {
     firstName: string, 
@@ -41,6 +107,7 @@ export const useAuth = () => {
     }
     
     setIsLoading(true);
+    setAuthError(null);
     
     try {
       // Create user in Supabase Auth
@@ -74,6 +141,7 @@ export const useAuth = () => {
       toast.success('Account created successfully! Please verify your email.');
       navigate('/login');
     } catch (error: any) {
+      setAuthError(error.message);
       toast.error(error.message || 'Registration failed');
     } finally {
       setIsLoading(false);
@@ -87,6 +155,7 @@ export const useAuth = () => {
     }
     
     setIsLoading(true);
+    setAuthError(null);
     
     try {
       const { error } = await supabase.auth.signInWithPassword({
@@ -97,8 +166,15 @@ export const useAuth = () => {
       if (error) throw error;
 
       toast.success('Logged in successfully!');
-      navigate('/');
+      
+      // Redirect based on user role
+      if (currentUser?.role === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/');
+      }
     } catch (error: any) {
+      setAuthError(error.message);
       toast.error(error.message || 'Login failed');
     } finally {
       setIsLoading(false);
@@ -106,18 +182,104 @@ export const useAuth = () => {
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
-    navigate('/login');
+    setIsLoading(true);
+    
+    try {
+      await supabase.auth.signOut();
+      toast.success('Logged out successfully');
+      navigate('/login');
+    } catch (error: any) {
+      toast.error(error.message || 'Error signing out');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  return { signUp, signIn, signOut, isLoading };
+  return { 
+    signUp, 
+    signIn, 
+    signOut, 
+    isLoading, 
+    currentUser,
+    authError
+  };
 };
 
 export const useSession = () => {
   const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  // TODO: Implement session tracking
-  return { user };
+  useEffect(() => {
+    // Get current session
+    const getSession = async () => {
+      setLoading(true);
+      
+      try {
+        const { data } = await supabase.auth.getSession();
+        
+        if (data.session) {
+          // Get user profile data
+          const { data: userData } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', data.session.user.id)
+            .single();
+          
+          if (userData) {
+            setUser({
+              id: userData.id,
+              name: userData.name,
+              email: userData.email,
+              role: userData.role,
+              isVerified: userData.is_verified,
+              createdAt: new Date(userData.created_at),
+              lastLogin: userData.last_login ? new Date(userData.last_login) : undefined,
+              profileImage: userData.profile_image
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Session error:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getSession();
+
+    // Set up auth state change listener
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (session) {
+        // Get user profile data
+        const { data: userData } = await supabase
+          .from('users')
+          .select('*')
+          .eq('id', session.user.id)
+          .single();
+        
+        if (userData) {
+          setUser({
+            id: userData.id,
+            name: userData.name,
+            email: userData.email,
+            role: userData.role,
+            isVerified: userData.is_verified,
+            createdAt: new Date(userData.created_at),
+            lastLogin: userData.last_login ? new Date(userData.last_login) : undefined,
+            profileImage: userData.profile_image
+          });
+        }
+      } else {
+        setUser(null);
+      }
+    });
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, []);
+
+  return { user, loading };
 };
 
 export { supabase };
